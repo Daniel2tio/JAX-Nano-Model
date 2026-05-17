@@ -91,7 +91,7 @@ class TokenAndPositionEmbedding(nnx.Module):
         positions = jnp.arange(seq_len)[None, :]
         return self.token_emb(x) + self.pos_emb(positions)
 
-class MiniGPT(nnx.Module):
+class NanoJAX(nnx.Module, pytree=False):
 
     def __init__(self, maxlen=maxlen, vocab_size=vocab_size, embed_dim=embed_dim, num_heads=num_heads,
                  feed_forward_dim=feed_forward_dim, num_transformer_blocks=num_transformer_blocks, *, rngs=nnx.Rngs(0)):
@@ -100,10 +100,10 @@ class MiniGPT(nnx.Module):
 
         self.embedding = TokenAndPositionEmbedding(maxlen, vocab_size, embed_dim, rngs=rngs)
 
-        self.transformer_blocks = [
+        self.transformer_blocks = nnx.List([
             TransformerBlock(embed_dim, num_heads, feed_forward_dim, rngs=rngs)
             for _ in range(num_transformer_blocks)
-        ]
+        ])
 
         self.output_layer = nnx.Linear(embed_dim, vocab_size, use_bias=False, rngs=rngs)
         
